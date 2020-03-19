@@ -44,6 +44,13 @@ class DataTable extends Component {
     return (
       <table className="data-inner-table">
         <caption className="data-table-caption">{title}</caption>
+        <thead>
+          <tr>{headerView}</tr>
+        </thead>
+        <tbody>
+          {!this.state.data.length && this.noData}
+          {this.state.data && contentView}
+        </tbody>
       </table>
     );
   };
