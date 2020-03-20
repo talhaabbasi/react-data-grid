@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import ReactDOM from "react-dom";
 import "./datatable.css";
 
 class DataTable extends Component {
@@ -6,7 +7,9 @@ class DataTable extends Component {
     super(props);
     this.state = {
       headers: props.headers,
-      data: props.data
+      data: props.data,
+      sortby: null,
+      descending: null
     };
     this.keyField = props.keyField || "id";
     this.noData = props.noData || "No Record found";
@@ -30,7 +33,9 @@ class DataTable extends Component {
           style={{ width: width }}
           data-col={cleanTitle}
         >
-          <span className="header-cell">{title}</span>
+          <span data-col={cleanTitle} className="header-cell">
+            {title}
+          </span>
         </th>
       );
     });
@@ -70,6 +75,30 @@ class DataTable extends Component {
     });
     return contentView;
   };
+
+  onSort = event => {
+    let data = this.state.data.slice();
+    let coloumnIndex = ReactDOM.findDOMNode(event.target).parentNode.cellIndex;
+    let coloumnTitle = event.target.dataset.col;
+
+    let descending = !this.state.descending;
+
+    data.sort((a, b) => {
+      let sortValue = 0;
+      if (a[coloumnTitle] < b[coloumnTitle]) {
+        sortValue = -1;
+      } else if (a[coloumnTitle] > b[coloumnTitle]) {
+        sortValue = 1;
+      }
+      if (descending) {
+        sortValue *= -1;
+      }
+      return sortValue;
+    });
+
+    this.setState({ data, sortby: coloumnIndex, descending });
+  };
+
   renderTable = () => {
     let title = this.props.title || "DataTable";
     let headerView = this.renderTableHeader();
@@ -79,7 +108,7 @@ class DataTable extends Component {
     return (
       <table className="data-inner-table">
         <caption className="data-table-caption">{title}</caption>
-        <thead>
+        <thead onClick={this.onSort}>
           <tr>{headerView}</tr>
         </thead>
         <tbody>{contentView}</tbody>
