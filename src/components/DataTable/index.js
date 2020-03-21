@@ -3,13 +3,16 @@ import ReactDOM from "react-dom";
 import "./datatable.css";
 
 class DataTable extends Component {
+  _preSearchData = null;
+
   constructor(props) {
     super(props);
     this.state = {
       headers: props.headers,
       data: props.data,
       sortby: null,
-      descending: null
+      descending: null,
+      search: false
     };
     this.keyField = props.keyField || "id";
     this.noData = props.noData || "No Record found";
@@ -54,7 +57,7 @@ class DataTable extends Component {
       return (
         <th
           key={cleanTitle}
-          ref={th => (this.th = th)}
+          ref={th => (this[cleanTitle] = th)}
           style={{ width: width }}
           data-col={cleanTitle}
           onDragStart={event => this.onDragStart(event, index)}
@@ -129,6 +132,64 @@ class DataTable extends Component {
     this.setState({ data, sortby: coloumnIndex, descending });
   };
 
+  onSearch = event => {
+    let { headers } = this.state;
+    let needle = event.target.value.trim().toLowerCase();
+    if (!needle) {
+      this.setState({ date: this._preSearchData });
+    }
+    let index = event.target.dataset.idx;
+
+    let targetColoumn = this.state.headers[index].accessor;
+
+    let data = this._preSearchData;
+
+    let searchData = this._preSearchData.filter(row => {
+      let show = true;
+      for (let field in row) {
+        let fieldValue = row[field];
+        let inputID = "input" + field;
+        let input = this[inputID];
+        if (!fieldValue === "") {
+          show = true;
+        } else {
+          show =
+            fieldValue
+              .toString()
+              .toLowerCase()
+              .indexOf(input.value.toLowerCase()) > -1;
+          if (!show) break;
+        }
+      }
+      return show;
+    });
+    this.setState({ data: searchData });
+  };
+
+  renderSearch = () => {
+    let { search, headers } = this.state;
+    if (!search) {
+      return null;
+    }
+    let searchInputs = headers.map((header, index) => {
+      //Get the header accessor
+      let hdr = this[header.accessor];
+      let inputID = "input" + header.accessor;
+
+      return (
+        <td key={index}>
+          <input
+            ref={input => (this[inputID] = input)}
+            type="text"
+            data-idx={index}
+            style={{ width: hdr.clientWidth - 17 + "px" }}
+          />
+        </td>
+      );
+    });
+    return <tr onChange={this.onSearch}>{searchInputs}</tr>;
+  };
+
   renderTable = () => {
     let title = this.props.title || "DataTable";
     let headerView = this.renderTableHeader();
@@ -141,12 +202,44 @@ class DataTable extends Component {
         <thead onClick={this.onSort}>
           <tr>{headerView}</tr>
         </thead>
-        <tbody>{contentView}</tbody>
+        <tbody>
+          {this.renderSearch()}
+          {contentView}
+        </tbody>
       </table>
     );
   };
+
+  onToggleSearch = event => {
+    if (this.state.search) {
+      this.setState({
+        data: this._preSearchData,
+        search: false
+      });
+      this._preSearchData = null;
+    } else {
+      this._preSearchData = this.state.data;
+      this.setState({
+        search: true
+      });
+    }
+  };
+
+  renderToolbar = () => {
+    return (
+      <div className="toolbar">
+        <button onClick={this.onToggleSearch}>Search</button>
+      </div>
+    );
+  };
+
   render() {
-    return <div className={this.props.className}>{this.renderTable()}</div>;
+    return (
+      <div className={this.props.className}>
+        {this.renderToolbar()}
+        {this.renderTable()}
+      </div>
+    );
   }
 }
 export default DataTable;

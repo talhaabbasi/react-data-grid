@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import "../App.css";
+import jsonData from "../data/jsonData";
 import DataTable from "./DataTable";
 
 class App extends Component {
@@ -11,14 +12,14 @@ class App extends Component {
         {
           title: "Profile",
           accessor: "profile",
-          width: 80,
+          width: "80px",
           index: 1,
           cell: { type: "image", style: { width: "50px" } }
         },
         {
           title: "Name",
           accessor: "name",
-          width: 300,
+          width: "300px",
           index: 2
         },
         {
@@ -34,7 +35,7 @@ class App extends Component {
         {
           title: "Rating",
           accessor: "rating",
-          width: 200,
+          width: "200px",
           index: 5,
           cell: row => (
             <div className="rating">
@@ -53,40 +54,7 @@ class App extends Component {
           )
         }
       ],
-      data: [
-        {
-          id: 1,
-          name: "a",
-          age: 29,
-          qualification: "B.Com",
-          rating: 3,
-          profile: "https://png.icons8.com/nolan/50/000000/user.png"
-        },
-        {
-          id: 2,
-          name: "b",
-          age: 28,
-          qualification: "B.Sc",
-          rating: 5,
-          profile: "https://png.icons8.com/nolan/50/000000/user.png"
-        },
-        {
-          id: 3,
-          name: "c",
-          age: 26,
-          qualification: "B.Com",
-          rating: 3,
-          profile: "https://png.icons8.com/nolan/50/000000/user.png"
-        },
-        {
-          id: 4,
-          name: "d",
-          age: 25,
-          qualification: "B.Com",
-          rating: 3,
-          profile: "https://png.icons8.com/nolan/50/000000/user.png"
-        }
-      ]
+      data: jsonData
     };
     for (var i = 4; i <= 200; i++) {
       model.data.push({
@@ -102,7 +70,7 @@ class App extends Component {
   }
   render() {
     return (
-      <div className="App">
+      <div>
         <DataTable
           className="data-table"
           title="USER PROFILES"
