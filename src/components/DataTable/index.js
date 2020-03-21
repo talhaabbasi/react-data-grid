@@ -15,6 +15,27 @@ class DataTable extends Component {
     this.noData = props.noData || "No Record found";
     this.width = props.width || "100%";
   }
+
+  onDragOver = event => {
+    event.preventDefault();
+  };
+
+  onDragStart = (event, source) => {
+    event.dataTransfer.setData("text/plain", source);
+  };
+
+  onDrop = (event, target) => {
+    event.preventDefault();
+    let source = event.dataTransfer.getData("text/plain");
+    let headers = [...this.state.headers];
+    let sourceHeader = headers[source];
+    let targetHeader = headers[target];
+    let temp = sourceHeader.index;
+    sourceHeader.index = targetHeader.index;
+    targetHeader.index = temp;
+    this.setState({ headers });
+  };
+
   renderTableHeader = () => {
     let { headers } = this.state;
     headers.sort((a, b) => {
@@ -26,7 +47,7 @@ class DataTable extends Component {
       let cleanTitle = header.accessor;
       let width = header.width;
 
-      if (this.state.sortby == -index) {
+      if (this.state.sortby === index) {
         title += this.state.descending ? "\u2193" : "\u2191";
       }
 
@@ -36,8 +57,13 @@ class DataTable extends Component {
           ref={th => (this.th = th)}
           style={{ width: width }}
           data-col={cleanTitle}
+          onDragStart={event => this.onDragStart(event, index)}
+          onDragOver={this.onDragOver}
+          onDrop={event => {
+            this.onDrop(event, index);
+          }}
         >
-          <span data-col={cleanTitle} className="header-cell">
+          <span draggable className="header-cell" data-col={cleanTitle}>
             {title}
           </span>
         </th>
