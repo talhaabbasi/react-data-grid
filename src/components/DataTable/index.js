@@ -24,7 +24,11 @@ class DataTable extends Component {
     let headerView = headers.map((header, index) => {
       let title = header.title;
       let cleanTitle = header.accessor;
-      let width = headers.width;
+      let width = header.width;
+
+      if (this.state.sortby == -index) {
+        title += this.state.descending ? "\u2193" : "\u2191";
+      }
 
       return (
         <th
