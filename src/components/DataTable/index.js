@@ -15,7 +15,7 @@ class DataTable extends Component {
       descending: null,
       search: false,
       pageLength: props.pagination.pageLength || 10,
-      currentPage: 1
+      currentPage: 3
     };
     this.keyField = props.keyField || "id";
     this.noData = props.noData || "No Record found";
@@ -239,6 +239,14 @@ class DataTable extends Component {
     );
   };
 
+  onPageLengthChange = pageLength => {
+    alert(pageLength);
+  };
+
+  onGotoPage = pageNo => {
+    alert(pageNo);
+  };
+
   render() {
     return (
       <div className={this.props.className}>
@@ -247,6 +255,9 @@ class DataTable extends Component {
             type={this.props.pagination.type}
             totalRecords={this.state.data.length}
             pageLength={this.state.pageLength}
+            onPageLengthChange={this.onPageLengthChange}
+            onGotoPage={this.onGotoPage}
+            currentPage={this.state.currentPage}
           />
         )}
         {this.renderToolbar()}
