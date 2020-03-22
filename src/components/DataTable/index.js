@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import ReactDOM from "react-dom";
 import "./datatable.css";
+import Pagination from "../Pagination";
 
 class DataTable extends Component {
   _preSearchData = null;
@@ -12,11 +13,16 @@ class DataTable extends Component {
       data: props.data,
       sortby: null,
       descending: null,
-      search: false
+      search: false,
+      pageLength: props.pagination.pageLength || 10,
+      currentPage: 1
     };
     this.keyField = props.keyField || "id";
     this.noData = props.noData || "No Record found";
     this.width = props.width || "100%";
+
+    //Add pagination
+    this.pagination = this.props.pagination || {};
   }
 
   onDragOver = event => {
@@ -236,6 +242,13 @@ class DataTable extends Component {
   render() {
     return (
       <div className={this.props.className}>
+        {this.pagination.enabled && (
+          <Pagination
+            type={this.props.pagination.type}
+            totalRecords={this.state.data.length}
+            pageLength={this.state.pageLength}
+          />
+        )}
         {this.renderToolbar()}
         {this.renderTable()}
       </div>
