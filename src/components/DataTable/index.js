@@ -11,6 +11,7 @@ class DataTable extends Component {
     this.state = {
       headers: props.headers,
       data: props.data,
+      pagedData: props.data,
       sortby: null,
       descending: null,
       search: false,
@@ -89,7 +90,8 @@ class DataTable extends Component {
     );
   };
   renderContent = () => {
-    let { headers, data } = this.state;
+    let { headers } = this.state;
+    let data = this.pagination ? this.state.pagedData : this.state.data;
     let contentView = data.map((row, rowIndex) => {
       let id = row[this.keyField];
       let tds = headers.map((header, index) => {
@@ -135,14 +137,16 @@ class DataTable extends Component {
       return sortValue;
     });
 
-    this.setState({ data, sortby: coloumnIndex, descending });
+    this.setState({ data, sortby: coloumnIndex, descending }, () => {
+      this.onGotoPage(this.state.currentPage);
+    });
   };
 
   onSearch = event => {
     let { headers } = this.state;
     let needle = event.target.value.trim().toLowerCase();
     if (!needle) {
-      this.setState({ date: this._preSearchData });
+      this.setState({ data: this._preSearchData });
     }
     let index = event.target.dataset.idx;
 
@@ -169,7 +173,18 @@ class DataTable extends Component {
       }
       return show;
     });
-    this.setState({ data: searchData });
+    this.setState(
+      {
+        data: searchData,
+        pagedData: searchData,
+        totalRecords: searchData.length
+      },
+      () => {
+        if (this.pagination.enabled) {
+          this.onGotoPage(1);
+        }
+      }
+    );
   };
 
   renderSearch = () => {
@@ -239,13 +254,36 @@ class DataTable extends Component {
     );
   };
 
+  getPagedData = (pageNo, pageLength) => {
+    let startOfRecord = (pageNo - 1) * pageLength;
+    let endOfRecord = startOfRecord + pageLength;
+
+    let data = this.state.data;
+    let pagedData = data.slice(startOfRecord, endOfRecord);
+
+    return pagedData;
+  };
+
   onPageLengthChange = pageLength => {
-    alert(pageLength);
+    this.setState(
+      {
+        pageLength: parseInt(pageLength, 10)
+      },
+      () => {
+        this.onGotoPage(this.state.currentPage);
+      }
+    );
   };
 
   onGotoPage = pageNo => {
-    alert(pageNo);
+    let pagedData = this.getPagedData(pageNo, this.state.pageLength);
+    this.setState({ pagedData: pagedData, currentPage: pageNo });
   };
+  componentDidMount() {
+    if (this.pagination.enabled) {
+      this.onGotoPage(this.state.currentPage);
+    }
+  }
 
   render() {
     return (

@@ -29,6 +29,41 @@ class Pagination extends Component {
     });
     this.props.onGotoPage(pageNo);
   };
+  _getPaginationButtons = text => {
+    let classNames = "pagination-btn";
+    if (this.state.currentPage == text) {
+      classNames += " current-page";
+    }
+    let html = (
+      <button
+        key={`btn-${text}`}
+        id={`btn-${text}`}
+        className={classNames}
+        onClick={event => {
+          this.onGotoPage(text);
+        }}
+      >
+        {text}
+      </button>
+    );
+    return html;
+  };
+
+  onCurrentPageChange = event => {
+    if (this.currentPageInput.value >= this.pages) {
+      this.currentPageInput.value = this.pages;
+    }
+    this.setState({ currentPage: this.currentPageInput.value });
+    this.props.onGotoPage(this.currentPageInput.value);
+  };
+
+  static getDerivedStateFromProps(nextProps, previousState) {
+    if (nextProps.currentPage != previousState.currentPage) {
+      return {
+        currentPage: nextProps.currentPage
+      };
+    }
+  }
   render() {
     let totalRecords = this.props.totalRecords;
     let pages = Math.ceil(totalRecords / this.props.pageLength);
@@ -66,9 +101,29 @@ class Pagination extends Component {
         {">"}
       </button>
     );
+    let buttons = [];
+    if (this.props.type === "long") {
+      for (let i = 1; i < pages; i++) {
+        buttons.push(this._getPaginationButtons(i));
+      }
+    } else if (this.props.type === "short") {
+      buttons.push(
+        <input
+          key="currentPageInput"
+          className="current-page-input"
+          type="number"
+          max={this.pages}
+          defaultValue={this.state.currentPage}
+          ref={input => {
+            this.currentPageInput = input;
+          }}
+          onChange={this.onCurrentPageChange}
+        ></input>
+      );
+    }
     return (
       <div className="pagination">
-        {[pageSelector, previousButton, nextButton]}
+        {[pageSelector, previousButton, buttons, nextButton]}
       </div>
     );
   }
