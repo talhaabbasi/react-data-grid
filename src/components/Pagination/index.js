@@ -62,6 +62,8 @@ class Pagination extends Component {
       return {
         currentPage: nextProps.currentPage
       };
+    } else {
+      return null;
     }
   }
   render() {

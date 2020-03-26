@@ -1,82 +1,76 @@
 import React, { Component } from "react";
 import "../App.css";
-import jsonData from "../data/jsonData";
 import DataTable from "./DataTable";
+import Axios from "axios";
 
 class App extends Component {
   constructor(props) {
     super(props);
-    let model = {
+    this.state = {
       headers: [
-        { title: "Id", accessor: "id", index: 0 },
+        { title: "Id", accessor: "UniqueRowId", index: 0 },
+
         {
-          title: "Profile",
-          accessor: "profile",
-          width: "80px",
-          index: 1,
-          cell: { type: "image", style: { width: "50px" } }
+          title: "First Name",
+          accessor: "FirstName",
+          index: 1
         },
         {
-          title: "Name",
-          accessor: "name",
-          width: "300px",
+          title: "Last Name",
+          accessor: "LastName",
           index: 2
         },
         {
-          title: "Age",
-          accessor: "age",
+          title: "Phone Number",
+          accessor: "StudentPhoneNumber",
           index: 3
         },
         {
-          title: "Qualification",
-          accessor: "qualification",
+          title: "Campus Name",
+          accessor: "CampusName",
           index: 4
         },
         {
-          title: "Rating",
-          accessor: "rating",
-          width: "200px",
-          index: 5,
-          cell: row => (
-            <div className="rating">
-              <div
-                style={{
-                  backgroundColor: "lightskyblue",
-                  textAlign: "center",
-                  height: "1.9em",
-                  width: (row / 5) * 201 + "px",
-                  margin: "3px 0 4px 0"
-                }}
-              >
-                {row}
-              </div>
-            </div>
-          )
+          title: "Recommendation",
+          accessor: "Recommendation",
+          index: 5
         }
+        //   {
+        //     title: "Age",
+        //     accessor: "age",
+        //     index: 3
+        //   },
+        //   {
+        //     title: "Qualification",
+        //     accessor: "qualification",
+        //     index: 4
+        //   }
       ],
-      data: jsonData
+      data: null,
+      fetchTime: null
     };
-    for (var i = 4; i <= 200; i++) {
-      model.data.push({
-        id: i,
-        name: "name " + i,
-        age: i + 18,
-        qualification: "Graduate",
-        rating: i % 2 ? 3 : 4,
-        profile: "https://png.icons8.com/dotty/50/000000/cat-profile.png"
-      });
-    }
-    this.state = model;
+  }
+  async componentDidMount() {
+    var startTime = new Date();
+    await Axios.get(
+      `https://localhost:44316/api/vTDPS_AB_AllInterventions`
+    ).then(res => {
+      this.setState({ data: res.data });
+      console.log((new Date() - startTime) / 1000);
+    });
   }
   render() {
+    if (!this.state.data) {
+      return <div />;
+    }
     return (
       <div>
         <DataTable
           className="data-table"
-          title="USER PROFILES"
-          keyField="id"
+          title="TDPS Records"
+          keyField="Id"
           pagination={{
-            enabled: true,
+            enabled: false,
             pageLength: 10,
             type: "long"
           }}

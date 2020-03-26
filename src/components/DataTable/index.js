@@ -160,14 +160,21 @@ class DataTable extends Component {
         let fieldValue = row[field];
         let inputID = "input" + field;
         let input = this[inputID];
-        if (!fieldValue === "") {
+
+        if (
+          !fieldValue === "" ||
+          fieldValue === undefined ||
+          fieldValue == null
+        ) {
           show = true;
-        } else {
+        } else if (fieldValue !== 0) {
+          console.log(fieldValue.toString());
           show =
             fieldValue
               .toString()
               .toLowerCase()
               .indexOf(input.value.toLowerCase()) > -1;
+
           if (!show) break;
         }
       }
